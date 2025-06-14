@@ -77,7 +77,7 @@ db.test.find({ gender: "Male" }).project({ name: 1, gender: 1, email: 1 })
 // $eq example
 db.test.find({ gender: { $eq: "Male" } })
 
-// $gt and $lt together (implicit and with comma)
+// $gt and $lt together ("implicit and" with comma)
 db.test.find({ age: { $gt: 18, $lt: 30 } }, { age: 1 })
 
 // $gte (greater than or equal to)
@@ -131,6 +131,58 @@ db.test.find({
 ```
 
 ---
+
+### Logical Operators
+
+```js
+// $gt and $lt together ("implicit and" with comma)
+db.test.find({ age: { $gt: 18, $lt: 30 } }, { age: 1 })
+
+// explicit 'and'
+db.test.find({
+    $and: [
+        { gender: "Female" },
+        { age: { $ne: 15 } },
+        { age: { $lte: 30 } },
+        { age: { $gte: 18 } }
+    ]
+}).project({
+    age: 1, gender: 1
+}).sort({ age: 1 })
+
+
+//Explicit $or
+db.test.find({
+    $or: [
+        { interests: "Traveling" },
+        {"skills.name": "JAVASCRIPT"}
+    ]
+}).project({
+    interests: 1,
+    "skills.name":1
+}).sort({ age: 1 })
+
+
+// Implicit $or with $in operator
+db.test.find({ "skills.name": { $in: ["JAVASCRIPT", "PYTHON"] } }).project({
+    "skills.name": 1
+}).sort({ age: 1 })
+
+```
+
+---
+
+### Element operators
+
+```js
+// $exists- if a field exixts in a document
+db.test.find({ age: { $exists: false } })
+
+
+// $type
+db.test.find({ age: { $type: "string"} })
+
+```
 
 ## 6. Sorting and Filtering
 

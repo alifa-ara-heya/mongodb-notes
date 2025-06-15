@@ -6,6 +6,12 @@ A helpful collection of MongoDB query examples with syntax, explanations, and us
 
 ## 📋 Table of Contents
 
+1. [`$match`, `$project` aggregation stage](#1-match-project-aggregation-stage)
+2. [`$addFields`, `$out`, `$merge` aggregation stage](#2-addfields-out-merge-aggregation-stage)
+3. [`$group`, `$sum`, `$push` aggregation stage](#3-group-sum-push-aggregation-stage)
+4. [`$unwind` aggregation](#4-unwind-aggregation)
+5. [`$bucket`, `$sort`, and `$limit` aggregation stage](#5-bucket-sort-and-limit-aggregation-stage)
+
 ## 1. `$match`, `$project` aggregation stage
 
 ```js
@@ -85,7 +91,7 @@ db.test.aggregate([
 
 ```
 
-## 3. $group, $sum, $push aggregation stage
+## 3. `$group`, `$sum`, `$push` aggregation stage
 
 ```js
 db.test.aggregate([
@@ -234,7 +240,7 @@ db.test.aggregate([
 
 ```
 
-## 5. $bucket, $sort, and $limit aggregation stage
+## 5. `$bucket`, `$sort`, and `$limit` aggregation stage
 
 ```js
 db.test.aggregate([
@@ -263,5 +269,74 @@ db.test.aggregate([
         $project: { count: 1 }
     }
 ])
+
+```
+
+## 6. `$facet`, multiple pipeline aggregation stage
+
+```js
+
+db.test.aggregate([
+    {
+        $facet: {
+            //pipeline-1
+            "friendsCount": [
+                //stage-1
+                { $unwind: "$friends" },
+                //stage-2
+                { $group: { _id: "$friends", count: { $sum: 1 } } },
+            ],
+            // pipeline 2
+            "educationCount": [
+                //stage-1
+                { $unwind: "$education" },
+                //stage-2
+                { $group: { _id: "$education", count: { $sum: 1 } } }
+            ],
+            //pipeline-3
+            "skillsCount": [
+                //stage-1
+                { $unwind: "$skills" },
+                //stage-2
+                { $group: { _id: "$skills", count: { $sum: 1 } } }
+            ]
+
+        }
+    }
+])
+
+```
+
+## 7. `$lookup` - joining two collections- referencing
+
+```js
+// todo- difference between embedding and referencing
+
+db.orders.aggregate([
+    {
+        $lookup: {
+            from: "test",
+            localField: "userId",
+            foreignField: "_id",
+            as: "customer"
+        }
+    }
+])
+
+// here, orders is a collection and customer is another collection
+
+```
+
+## 8. indexing, collscan vs ixscan
+
+```js
+db.test.find({_id : ObjectId("6406ad63fc13ae5a40000065")}).explain() //gives details about the process
+
+db.test.find({_id : ObjectId("6406ad63fc13ae5a40000065")}).explain("executionStats")
+
+//creating index
+db.getCollection("massive-data").createIndex({email: 1})
+
+//after indexing, the search time became much lower
 
 ```

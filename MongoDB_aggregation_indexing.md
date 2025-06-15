@@ -11,6 +11,10 @@ A helpful collection of MongoDB query examples with syntax, explanations, and us
 3. [`$group`, `$sum`, `$push` aggregation stage](#3-group-sum-push-aggregation-stage)
 4. [`$unwind` aggregation](#4-unwind-aggregation)
 5. [`$bucket`, `$sort`, and `$limit` aggregation stage](#5-bucket-sort-and-limit-aggregation-stage)
+6. [`$facet`, multiple pipeline aggregation stage](#6-facet-multiple-pipeline-aggregation-stage)  
+7. [`$lookup` - joining two collections (referencing)](#7-lookup---joining-two-collections--referencing)  
+8. [Indexing, `COLLSCAN` vs `IXSCAN`](#8-indexing-collscan-vs-ixscan)  
+9. [Compound index and text index](#9-compound-index-and-text-index)
 
 ## 1. `$match`, `$project` aggregation stage
 

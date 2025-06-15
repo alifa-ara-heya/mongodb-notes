@@ -83,10 +83,124 @@ db.test.aggregate([
     { $merge: "test" }
 ])
 
+```
+
+## 3. $group, $sum, $push aggregation stage
+
+```js
+db.test.aggregate([
+    //stage- 1
+    { $group: { _id: "$address.country" } }
+])
 
 
+db.test.aggregate([
+    //stage- 1
+    { $group: { _id: "$age", count: { $sum: 1 } } } // count: { $sum: 1 } counts how many documents exist for each age. for example, there are 2 people whose age is 70
+])
+
+db.test.aggregate([
+    //stage- 1
+    { $group: { 
+        _id: "$address.country", 
+        count: { $sum: 1 }, 
+        showName: {$push: "$name"} } }
+])
+
+// example output
+/* 
+{
+ "_id" : "Norway",
+ "count" : 1,
+ "showName" : [
+  {
+   "firstName" : "Bobbye",
+   "lastName" : "Smaile"
+  }
+ ]
+}, */
+
+// if we want to see everything based on full document
+db.test.aggregate([
+    //stage- 1
+    {
+        $group:
+        {
+            _id: "$address.country",
+            count: { $sum: 1 },
+            fullDoc: { $push: "$$ROOT" } //with the help of $$ROOT, one can use the full doc for the next stage
+        }
+    },
+    //stage-2
+    {
+        $project: {
+            "fullDoc.name": 1,
+            "fullDoc.email": 1,
+            "fullDoc.phone": 1,
+        }
+    }
+])
+// example output
+/* {
+ "_id" : "Norway",
+ "fullDoc" : [
+  {
+   "name" : {
+    "firstName" : "Bobbye",
+    "lastName" : "Smaile"
+   },
+   "email" : "bsmailex@army.mil",
+   "phone" : "(415) 1347163"
+  }
+ ]
+}, */
 
 
+// grouping by null makes the entire collection a document
+db.test.aggregate([
+    //stage- 1
+    { 
+        $group:  {
+            _id: null,
+            totalSalary: {$sum: 1} //will give the count of salary
+        }
+    }
+])
+
+// if we want to get the sum of salary and other operations
+db.test.aggregate([
+    //stage- 1
+    {
+        $group: {
+            _id: null,
+            totalSalary: { $sum: "$salary" },
+            maxSalary: { $max: "$salary" },
+            minSalary: { $min: "$salary" },
+            avgSalary: { $avg: "$salary" },
+        }
+    },
+    //stage-2
+    {
+        $project: {
+            totalSalary: 1,
+            maxSalary: 1,
+            minSalary: 1,
+            averageSalary: "$avgSalary",
+            rangeBetweenMaxAndMin: { $subtract: ["$maxSalary", "$minSalary"] }
+        }
+    }
+])
+
+// output:
+/* 
+{
+ "_id" : null,
+ "totalSalary" : 30198,
+ "maxSalary" : 499,
+ "minSalary" : 105,
+ "averageSalary" : 308.14285714285717,
+ "rangeBetweenMaxAndMin" : 394
+} */
 
 
 ```

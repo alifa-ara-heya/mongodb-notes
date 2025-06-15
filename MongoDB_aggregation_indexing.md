@@ -334,9 +334,26 @@ db.test.find({_id : ObjectId("6406ad63fc13ae5a40000065")}).explain() //gives det
 
 db.test.find({_id : ObjectId("6406ad63fc13ae5a40000065")}).explain("executionStats")
 
-//creating index
+//creating index over a single field
 db.getCollection("massive-data").createIndex({email: 1})
 
 //after indexing, the search time became much lower
+
+```
+
+## 9. compound index and text index
+
+```js
+
+// indexing over multiple fields
+
+// dropping index
+db.getCollection("massive-data").dropIndex({ email: 1 })
+
+// creating text index
+db.getCollection("massive-data").createIndex({ about: 'text' })
+
+// searching text through this index
+db.getCollection("massive-data").find({ $text: { $search: 'dolor' } })
 
 ```

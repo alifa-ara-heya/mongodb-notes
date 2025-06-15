@@ -204,3 +204,64 @@ db.test.aggregate([
 
 
 ```
+
+## 4. `$unwind` aggregation
+
+```js
+
+// $unwind helps us to break the array and get individual elements
+db.test.aggregate([
+    //stage-1
+    { $unwind: "$friends" },
+
+    // stage-2
+    {
+        $group: { _id: "$friends", count: { $sum: 1 } }
+    }
+])
+
+// if we want to see what are the interests in an age group-
+
+db.test.aggregate([
+    //stage-1
+    { $unwind: "$interests" },
+
+    // stage-2
+    {
+        $group: { _id: "$age", interestsPerAge: { $push: "$interests" } }
+    }
+])
+
+```
+
+## 5. $bucket, $sort, and $limit aggregation stage
+
+```js
+db.test.aggregate([
+    //stage-1
+    {
+        $bucket: {
+            groupBy: '$age',
+            boundaries: [20, 40, 60, 80],
+            default: "age group more than 80",
+            output: {
+                count: { $sum: 1 },
+                people: { $push: "$$ROOT" }
+            }
+        }
+    },
+    //stage-2, sorting
+    {
+        $sort: { count: -1 }
+    },
+    //stage-3, limit (always use limit after sorting)
+    {
+        $limit: 2
+    },
+    //stage-4, projection
+    {
+        $project: { count: 1 }
+    }
+])
+
+```
